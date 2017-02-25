@@ -103,7 +103,7 @@ void MavMultiRotorConnector::updateRenderedState()
 
 void MavMultiRotorConnector::updateRendering(float dt)
 {
-	mav_.reportTelemetry(dt);
+    controller_->reportTelemetry(dt);
 
 	//update rotor animations
 	for (unsigned int i = 0; i < vehicle_.vertexCount(); ++i) {

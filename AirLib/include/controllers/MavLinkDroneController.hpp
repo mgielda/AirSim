@@ -106,7 +106,7 @@ public:
     bool hover(CancelableBase& cancelable_action) override;
     GeoPoint getHomePoint() override;
     GeoPoint getGpsLocation() override;
-	void reportTelemetry(float renderTime);
+	virtual void reportTelemetry(float renderTime) override;
 
     float getCommandPeriod() override;
     float getTakeoffZ() override;
