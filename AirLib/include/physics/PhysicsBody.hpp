@@ -5,7 +5,7 @@
 #define airsim_core_PhysicsBody_hpp
 
 #include "common/Common.hpp"
-#include "common/UpdatableContainer.hpp"
+#include "common/UpdatableObject.hpp"
 #include "PhysicsBodyVertex.hpp"
 #include "common/CommonStructs.hpp"
 #include "Kinematics.hpp"

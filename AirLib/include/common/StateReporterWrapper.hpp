@@ -10,8 +10,8 @@
 #include "common/Common.hpp"
 #include "common_utils/OnlineStats.hpp"
 #include "common/FrequencyLimiter.hpp"
+#include "UpdatableObject.hpp"
 #include "StateReporter.hpp"
-#include "UpdatableContainer.hpp"
 
 namespace msr { namespace airlib {
 

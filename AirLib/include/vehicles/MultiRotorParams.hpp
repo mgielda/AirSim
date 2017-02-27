@@ -1,11 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-#ifndef msr_air_copter_sim_MultiRotorParameters_hpp
-#define msr_air_copter_sim_MultiRotorParameters_hpp
+#ifndef msr_airlib_MultiRotorParameters_hpp
+#define msr_airlib_MultiRotorParameters_hpp
 
 #include "common/Common.hpp"
 #include "RotorParams.hpp"
+#include "sensors/SensorCollection.hpp"
 
 namespace msr { namespace airlib {
 
@@ -55,6 +56,9 @@ public: //types
         real_T friction = 0.7f;
         EnabledSensors enabled_sensors;
         RotorParams rotor_params;
+
+        /*********** sensors and controllers ***********/
+        SensorCollection sensors;
     };
 
 public: //fields
