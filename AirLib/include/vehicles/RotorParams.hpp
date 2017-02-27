@@ -11,7 +11,7 @@ namespace msr { namespace airlib {
 
 
 //In NED system, +ve torque would generate clockwise rotation
-enum RotorTurningDirection:int {
+enum class RotorTurningDirection:int {
     RotorTurningDirectionCCW = -1,
     RotorTurningDirectionCW = 1
 };
