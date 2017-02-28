@@ -31,7 +31,7 @@ public: //methods
     //constructors
     PhysicsBody()
     {
-        PhysicsBody::reset();
+        //allow default constructor with later call for initialize
     }
     PhysicsBody(real_T mass, const Matrix3x3r& inertia, const Kinematics::State& initial_kinematic_state, Environment* environment)
     {

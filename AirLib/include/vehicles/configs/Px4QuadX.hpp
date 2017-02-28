@@ -6,16 +6,17 @@
 
 #include "vehicles/MultiRotorParams.hpp"
 
-#include "sensors/barometer/BarometerBase.hpp"
-#include "sensors/imu/ImuBase.hpp"
-#include "sensors/gps/GpsBase.hpp"
-#include "sensors/magnetometer/MagnetometerBase.hpp"
+//sensors
+#include "sensors/barometer/BarometerSimple.hpp"
+#include "sensors/imu/ImuSimple.hpp"
+#include "sensors/gps/GpsSimple.hpp"
+#include "sensors/magnetometer/MagnetometerSimple.hpp"
 
 namespace msr { namespace airlib {
 
 class Px4QuadX : public MultiRotorParams {
 protected:
-    virtual void initialize(Params& params) override
+    virtual void initialize(Params& params, SensorCollection& sensors) override
     {
         //set up arm lengths
         //dimensions are for F450 frame: http://artofcircuits.com/product/quadcopter-frame-hj450-with-power-distribution
@@ -35,9 +36,34 @@ protected:
         initializeRotorPoses(params.rotor_poses, params.rotor_count, arm_lengths.data(), rotor_z);
         //compute inertia matrix
         computeInertiaMatrix(params.inertia, params.body_box, params.rotor_poses, box_mass, motor_assembly_weight);
+        //create sensors
+        createStandardSensors(sensors, params.enabled_sensors);
 
         //leave everything else to defaults
     }
+
+private:
+    void createStandardSensors(SensorCollection& sensors, const EnabledSensors& enabled_sensors)
+    {
+        if (enabled_sensors.imu)
+            sensors.add(createSensor<ImuSimple>(), SensorCollection::SensorType::Imu);
+        if (enabled_sensors.magnetometer)
+            sensors.add(createSensor<MagnetometerSimple>(), SensorCollection::SensorType::Magnetometer);
+        if (enabled_sensors.gps)
+            sensors.add(createSensor<GpsSimple>(), SensorCollection::SensorType::Gps);
+        if (enabled_sensors.barometer)
+            sensors.add(createSensor<BarometerSimple>(), SensorCollection::SensorType::Barometer);
+    }
+
+    template<typename SensorClass>
+    SensorBase* createSensor()
+    {
+        sensor_storage_.emplace_back(unique_ptr<SensorClass>(new SensorClass()));
+        return sensor_storage_.back().get();
+    }
+
+private:
+    vector<unique_ptr<SensorBase>> sensor_storage_;
 };
 
 }} //namespace

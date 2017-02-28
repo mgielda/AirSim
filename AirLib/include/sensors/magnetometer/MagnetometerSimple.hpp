@@ -16,30 +16,18 @@ namespace msr { namespace airlib {
 
 class MagnetometerSimple : public MagnetometerBase {
 public: 
-    MagnetometerSimple()
+    MagnetometerSimple(const MagnetometerSimpleParams& params = MagnetometerSimpleParams())
+        : params_(params)
     {
-        MagnetometerSimple::reset();
-    }
-    MagnetometerSimple(GroundTruth* ground_truth)
-    {
-        initialize(ground_truth);
-    }
-    void initialize(GroundTruth* ground_truth)
-    {
-        MagnetometerBase::initialize(ground_truth);
-        
         noise_vec_ = RandomVectorGaussianR(Vector3r::Zero(), params_.noise_sigma);
         bias_vec_ = RandomVectorR(-params_.noise_bias, params_.noise_bias).next();
-
-        MagnetometerSimple::reset();
     }
-
 
     //*** Start: UpdatableObject implementation ***//
     virtual void reset() override
     {
+        //Ground truth is reset before sensors are reset
         updateReference(getGroundTruth());
-
         noise_vec_.reset();
         updateOutput(0);
     }

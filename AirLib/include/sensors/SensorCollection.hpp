@@ -9,6 +9,7 @@
 #include "common/UpdatableContainer.hpp"
 #include "common/Common.hpp"
 
+
 namespace msr { namespace airlib {
 
 class SensorCollection : UpdatableObject {
@@ -19,14 +20,14 @@ public: //types
         Gps = 3,
         Magnetometer = 4
     };
-    typedef UpdatableContainer<SensorBase*> SensorBaseContainer;
+    typedef SensorBase* SensorBasePtr;
 public:
-    void add(SensorBase* sensor, SensorType type)
+    void add(SensorBasePtr sensor, SensorType type)
     {
         auto type_int = static_cast<uint>(type);
         const auto& it = sensors_.find(type_int);
         if (it == sensors_.end()) {
-            const auto& pair = sensors_.emplace(type_int, std::make_shared<SensorBaseContainer>());
+            const auto& pair = sensors_.emplace(type_int, unique_ptr<SensorBaseContainer>(new SensorBaseContainer()));
             pair.first->second->insert(sensor);
         }
         else {
@@ -34,7 +35,7 @@ public:
         }
     }
 
-    SensorBase* get(SensorType type, uint index = 0)
+    const SensorBase* getByType(SensorType type, uint index = 0) const
     {
         auto type_int = static_cast<uint>(type);
         const auto& it = sensors_.find(type_int);
@@ -57,6 +58,16 @@ public:
             return it->second->size();
         }
     }
+
+    void initialize(const Kinematics::State* kinematics, const Environment* environment)
+    {
+        for (auto& pair : sensors_) {
+            for (auto& sensor : *pair.second) {
+                sensor->initialize(kinematics, environment);
+            }
+        }
+    }
+
 
     //*** Start: UpdatableState implementation ***//
     virtual void reset() override
@@ -82,7 +93,8 @@ public:
     //*** End: UpdatableState implementation ***//
 
 private:
-    unordered_map<uint, shared_ptr<UpdatableContainer<SensorBase*>>> sensors_;
+    typedef UpdatableContainer<SensorBasePtr> SensorBaseContainer;
+    unordered_map<uint, unique_ptr<SensorBaseContainer>> sensors_;
 };
 
 }} //namespace

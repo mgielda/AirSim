@@ -11,11 +11,7 @@
 #include "MultiRotorParams.hpp"
 #include <vector>
 #include "physics/PhysicsBody.hpp"
-//sensors
-#include "sensors/imu/ImuSimple.hpp"
-#include "sensors/magnetometer/MagnetometerSimple.hpp"
-#include "sensors/barometer/BarometerSimple.hpp"
-#include "sensors/gps/GpsSimple.hpp"
+
 
 namespace msr { namespace airlib {
 
@@ -23,13 +19,13 @@ class MultiRotor : public PhysicsBody {
 public:
     MultiRotor()
     {
-        MultiRotor::reset();
+        //allow default constructor with later call for initialize
     }
-    MultiRotor(const MultiRotorParams* params, const Kinematics::State& initial_kinematic_state, Environment* environment, ControllerBase* controller_ptr)
+    MultiRotor(MultiRotorParams* params, const Kinematics::State& initial_kinematic_state, Environment* environment, ControllerBase* controller_ptr)
     {
         initialize(params, initial_kinematic_state, environment, controller_ptr);
     }
-	void initialize(const MultiRotorParams* params, const Kinematics::State& initial_kinematic_state, Environment* environment, ControllerBase* controller_ptr)
+	void initialize(MultiRotorParams* params, const Kinematics::State& initial_kinematic_state, Environment* environment, ControllerBase* controller_ptr)
 	{
 		params_ = params;
         controller_ptr_ = controller_ptr;
@@ -38,7 +34,7 @@ public:
 
         createRotors(*params_, rotors_, environment);
 
-        createSensors(*params_, initial_kinematic_state, getEnvironment());
+        initSensors(*params_, getKinematics(), getEnvironment());
 
 		//setup drag factors (must come after createRotors).
 		setupDragFactors();
@@ -107,6 +103,11 @@ public:
         }
     }
 
+    //sensor getter
+    const SensorCollection& getSensors() const
+    {
+        return params_->getSensors();
+    }
 
     //physics body abstract interface
     virtual Vector3r getLinearDragFactor() const override
@@ -138,25 +139,6 @@ public:
         return params_->getParams().friction;
     }
 
-    //sensor getters
-    const ImuBase* getImu() const 
-    {
-        return imu_.get();
-    }
-    const MagnetometerBase* getMagnetometer() const 
-    {
-        return magnetometer_.get();
-    }
-    const BarometerBase* getBarometer() const 
-    {
-        return barometer_.get();
-    }
-    const GpsBase* getGps() const 
-    {
-        return gps_.get();
-    }
-
-
     Rotor::Output getRotorOutput(uint rotor_index) const
     {
         return rotors_.at(rotor_index).getOutput();
@@ -175,82 +157,24 @@ private: //methods
         }
     }
 
-    void reportSensors(const MultiRotorParams& params, StateReporter& reporter)
+    void reportSensors(MultiRotorParams& params, StateReporter& reporter)
     {
-        const auto& enabled_sensors = params.getParams().enabled_sensors;
-
-        if (enabled_sensors.imu) {
-            imu_->reportState(reporter);
-        }
-        if (enabled_sensors.magnetometer) {
-            magnetometer_->reportState(reporter);
-        }
-        if (enabled_sensors.gps) {
-            gps_->reportState(reporter);
-        }
-        if (enabled_sensors.barometer) {
-            barometer_->reportState(reporter);
-        }
+        params.getSensors().reportState(reporter);
     }
 
-    void updateSensors(const MultiRotorParams& params, const Kinematics::State& state, const Environment& environment, real_T dt)
+    void updateSensors(MultiRotorParams& params, const Kinematics::State& state, const Environment& environment, real_T dt)
     {
-        const auto& enabled_sensors = params.getParams().enabled_sensors;
-
-        if (enabled_sensors.imu) {
-            imu_->update(dt);
-        }
-        if (enabled_sensors.magnetometer) {
-            magnetometer_->update(dt);
-        }
-        if (enabled_sensors.gps) {
-            gps_->update(dt);
-        }
-        if (enabled_sensors.barometer) {
-            barometer_->update(dt);
-        }
+        params.getSensors().update(dt);
     }
 
-    void createSensors(const MultiRotorParams& params, const Kinematics::State& state, const Environment& environment)
+    void initSensors(MultiRotorParams& params, const Kinematics::State& state, const Environment& environment)
     {
-        sensors_ground_truth_.reset(new SensorBase::GroundTruth());
-        sensors_ground_truth_->body = this;
-        sensors_ground_truth_->environment = &getEnvironment();
-        sensors_ground_truth_->kinematics = &getKinematics();
-
-        const auto& enabled_sensors = params.getParams().enabled_sensors;
-
-        //IMU
-        if (enabled_sensors.imu) {
-            imu_.reset(new ImuSimple(sensors_ground_truth_.get()));
-        }
-
-        //Magnetometer
-        if (enabled_sensors.magnetometer) {
-            magnetometer_.reset(new MagnetometerSimple(sensors_ground_truth_.get()));
-        }
-
-        //GPS
-        if (enabled_sensors.gps) {
-            gps_.reset(new GpsSimple(sensors_ground_truth_.get()));
-        }
-
-        //Barometer
-        if (enabled_sensors.barometer) {
-            barometer_.reset(new BarometerSimple(sensors_ground_truth_.get()));
-        }
+        params.getSensors().initialize(&state, &environment);
     }
 
     void resetSensors()
     {
-        if (imu_)
-            imu_->reset();
-        if (magnetometer_)
-            magnetometer_->reset();
-        if (gps_)
-            gps_->reset();
-        if (barometer_)
-            barometer_->reset();
+        params_->getSensors().reset();
     }
 
     real_T getAngDragIntOverFaceXY(real_T x, real_T y, real_T z)
@@ -329,8 +253,9 @@ private: //methods
         angular_drag_factor_ = angular_drag_factor_unit_ * air_density;
     }
 
+
 private: //fields
-    const MultiRotorParams* params_;
+    MultiRotorParams* params_;
     ControllerBase* controller_ptr_ = nullptr;
 
     //let us be the owner of rotors object
@@ -339,13 +264,6 @@ private: //fields
     //drag
     Vector3r linear_drag_factor_unit_, angular_drag_factor_unit_;
     Vector3r linear_drag_factor_, angular_drag_factor_;
-    
-    //sensors
-    unique_ptr<SensorBase::GroundTruth> sensors_ground_truth_;
-    unique_ptr<ImuBase> imu_;
-    unique_ptr<MagnetometerBase> magnetometer_;
-    unique_ptr<GpsBase> gps_;
-    unique_ptr<BarometerBase> barometer_;
 };
 
 }} //namespace

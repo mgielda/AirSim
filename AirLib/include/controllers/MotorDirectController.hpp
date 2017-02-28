@@ -17,11 +17,7 @@ private:
     MotorDirectControllerParams params_;
 
 public:
-    MotorDirectController()
-    {
-        MotorDirectController::reset();
-    }
-    MotorDirectController(const MotorDirectControllerParams& params)
+    MotorDirectController(const MotorDirectControllerParams& params = MotorDirectControllerParams())
     {
         initialize(params);
     }

@@ -13,11 +13,7 @@ namespace msr { namespace airlib {
 
 class RpyDirectController : public ControllerBase {
 public:
-    RpyDirectController()
-    {
-        RpyDirectController::reset();
-    }
-    RpyDirectController(const RpyDirectControllerParams& params)
+    RpyDirectController(const RpyDirectControllerParams& params = RpyDirectControllerParams())
     {
         initialize(params);
     }

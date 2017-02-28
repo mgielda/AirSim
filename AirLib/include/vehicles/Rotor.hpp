@@ -29,7 +29,7 @@ public: //types
 public: //methods
     Rotor()
     {
-        Rotor::reset();
+        //allow default constructor with later call for initialize
     }
     Rotor(const Vector3r& position, const Vector3r& normal, RotorTurningDirection turning_direction, 
         const RotorParams& params, const Environment* environment, uint id = -1)

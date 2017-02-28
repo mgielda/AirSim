@@ -56,24 +56,27 @@ public: //types
         real_T friction = 0.7f;
         EnabledSensors enabled_sensors;
         RotorParams rotor_params;
-
-        /*********** sensors and controllers ***********/
-        SensorCollection sensors;
     };
 
 public: //fields
+    MultiRotorParams()
+    {
+        //call derived class method to set up params
+        initialize(params_, sensors_);
+    }
+
     const Params& getParams() const
     {
         return params_;
     }
 
-    MultiRotorParams()
+    SensorCollection& getSensors()
     {
-        initialize(params_);
+        return sensors_;
     }
 
 protected: //must override
-    virtual void initialize(Params& params) = 0;
+    virtual void initialize(Params& params, SensorCollection& sensors) = 0;
 
 protected: //static utility functions for derived classes to use
     static void initializeRotorPoses(vector<RotorPose>& rotor_poses, uint rotor_count, real_T arm_lengths[], real_T rotor_z /* z relative to center of gravity */)
@@ -130,6 +133,7 @@ protected: //static utility functions for derived classes to use
 
 private:
     Params params_;
+    SensorCollection sensors_;
 };
 
 }} //namespace
