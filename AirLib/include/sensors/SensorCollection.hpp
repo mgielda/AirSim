@@ -22,7 +22,7 @@ public: //types
     };
     typedef SensorBase* SensorBasePtr;
 public:
-    void add(SensorBasePtr sensor, SensorType type)
+    void insert(SensorBasePtr sensor, SensorType type)
     {
         auto type_int = static_cast<uint>(type);
         const auto& it = sensors_.find(type_int);

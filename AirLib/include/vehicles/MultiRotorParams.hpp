@@ -58,11 +58,10 @@ public: //types
         RotorParams rotor_params;
     };
 
-public: //fields
-    MultiRotorParams()
+public: //interface
+    void initialize()
     {
-        //call derived class method to set up params
-        initialize(params_, sensors_);
+        setup(params_, sensors_);
     }
 
     const Params& getParams() const
@@ -75,8 +74,9 @@ public: //fields
         return sensors_;
     }
 
-protected: //must override
-    virtual void initialize(Params& params, SensorCollection& sensors) = 0;
+protected: //must override by derived class
+    //this method must clean up any previous initializations
+    virtual void setup(Params& params, SensorCollection& sensors) = 0;
 
 protected: //static utility functions for derived classes to use
     static void initializeRotorPoses(vector<RotorPose>& rotor_poses, uint rotor_count, real_T arm_lengths[], real_T rotor_z /* z relative to center of gravity */)

@@ -16,7 +16,7 @@ namespace msr { namespace airlib {
 
 class Px4QuadX : public MultiRotorParams {
 protected:
-    virtual void initialize(Params& params, SensorCollection& sensors) override
+    virtual void setup(Params& params, SensorCollection& sensors) override
     {
         //set up arm lengths
         //dimensions are for F450 frame: http://artofcircuits.com/product/quadcopter-frame-hj450-with-power-distribution
@@ -45,14 +45,15 @@ protected:
 private:
     void createStandardSensors(SensorCollection& sensors, const EnabledSensors& enabled_sensors)
     {
+        sensor_storage_.clear();
         if (enabled_sensors.imu)
-            sensors.add(createSensor<ImuSimple>(), SensorCollection::SensorType::Imu);
+            sensors.insert(createSensor<ImuSimple>(), SensorCollection::SensorType::Imu);
         if (enabled_sensors.magnetometer)
-            sensors.add(createSensor<MagnetometerSimple>(), SensorCollection::SensorType::Magnetometer);
+            sensors.insert(createSensor<MagnetometerSimple>(), SensorCollection::SensorType::Magnetometer);
         if (enabled_sensors.gps)
-            sensors.add(createSensor<GpsSimple>(), SensorCollection::SensorType::Gps);
+            sensors.insert(createSensor<GpsSimple>(), SensorCollection::SensorType::Gps);
         if (enabled_sensors.barometer)
-            sensors.add(createSensor<BarometerSimple>(), SensorCollection::SensorType::Barometer);
+            sensors.insert(createSensor<BarometerSimple>(), SensorCollection::SensorType::Barometer);
     }
 
     template<typename SensorClass>
