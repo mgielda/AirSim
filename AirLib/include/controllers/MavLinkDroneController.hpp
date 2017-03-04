@@ -4,15 +4,9 @@
 #ifndef air_ros_MavLinkDroneController_hpp
 #define air_ros_MavLinkDroneController_hpp
 
-#include "common/CommonStructs.hpp"
-#include "common/Common.hpp"
-#include "common/VectorMath.hpp"
-#include "vehicles/MultiRotor.hpp"
 #include "controllers/DroneControllerBase.hpp"
-#include <queue>
-#include <mutex>
-#include <string>
-#include <vector>
+#include "sensors/SensorCollection.hpp"
+
 
 namespace msr { namespace airlib {
 
@@ -20,14 +14,6 @@ namespace msr { namespace airlib {
 class MavLinkDroneController : public DroneControllerBase
 {
 public:
-    typedef msr::airlib::GeoPoint GeoPoint;
-    typedef msr::airlib::VectorMath VectorMath;
-    typedef msr::airlib::Vector3r Vector3r;
-    typedef msr::airlib::Quaternionr Quaternionr;
-    typedef common_utils::Utils Utils;
-    typedef msr::airlib::real_T real_T;
-    typedef msr::airlib::MultiRotor MultiRotor;
-
     struct ConnectionInfo {
         /* Default values are requires so uninitialized instance doesn't have random values */
 

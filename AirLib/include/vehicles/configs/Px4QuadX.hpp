@@ -8,11 +8,6 @@
 #include "controllers/MavLinkDroneController.hpp"
 #include "controllers/Settings.hpp"
 
-//sensors
-#include "sensors/barometer/BarometerSimple.hpp"
-#include "sensors/imu/ImuSimple.hpp"
-#include "sensors/gps/GpsSimple.hpp"
-#include "sensors/magnetometer/MagnetometerSimple.hpp"
 
 namespace msr { namespace airlib {
 

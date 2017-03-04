@@ -26,6 +26,11 @@ public:
     {
         //default implementation
     }
+
+    virtual void setLed(int id, float r, float g, float b, bool is_on)
+    {
+        //default implementation
+    }
 };
 
 class VehicleControllerException : public ControllerException {
