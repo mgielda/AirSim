@@ -40,6 +40,13 @@ public:
         input_channels_[channel] = val;
     }
 
+    void notifySensorUpdated(rosflight::Board::SensorType type)
+    {
+        if (type == rosflight::Board::SensorType::Imu)
+            imu_updated_callback_();
+    }
+
+public:
     //Board interface implementation --------------------------------------------------------------------------
     virtual void init() override 
     {
@@ -60,7 +67,8 @@ public:
 
     virtual void init_sensors(uint16_t& acc1G, float& gyro_scale, int boardVersion, const std::function<void(void)>& imu_updated_callback) override 
     {
-        //ignored for now
+        imu_updated_callback_ = imu_updated_callback;
+        init_imu(acc1G, gyro_scale, boardVersion);
     }
 
     virtual bool is_sensor_present(SensorType type) override 
@@ -124,7 +132,9 @@ public:
 
     virtual void init_imu(uint16_t& acc1G, float& gyroScale, int boardVersion) override 
     {
-        //ignored for now
+        //same as mpu6050_init
+        acc1G = kAccelAdcBits;
+        gyroScale = kGyroScale;
     }
 
     virtual void read_accel(int16_t accel_adc[3]) override 
@@ -251,11 +261,13 @@ private: //types and consts
 
     static constexpr uint OutputMotorCount = 16;
     static constexpr uint InputChannelCount = 16;
-    
+
 private:
     //motor outputs
     uint16_t motors_pwm_[OutputMotorCount];
     real_T input_channels_[InputChannelCount];
+
+    std::function<void(void)> imu_updated_callback_;
 };
 
 }} //namespace

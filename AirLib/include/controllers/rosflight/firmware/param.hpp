@@ -349,9 +349,9 @@ void Params::set_param_defaults(void)
     init_param_int(PARAM_BOARD_REVISION, "BOARD_REV", 2); // Major board revision of naze32/flip32 | 1 | 6
     init_param_int(PARAM_BAUD_RATE, "BAUD_RATE", 921600); // Baud rate of communication with onboard computer | 9600 | 921600
 
-                                                          /*****************************/
-                                                          /*** MAVLINK CONFIGURATION ***/
-                                                          /*****************************/
+    /*****************************/
+    /*** MAVLINK CONFIGURATION ***/
+    /*****************************/
     init_param_int(PARAM_SYSTEM_ID, "SYS_ID", 1); // Mavlink System ID  | 1 | 255
     init_param_int(PARAM_STREAM_HEARTBEAT_RATE, "STRM_HRTBT", 1); // Rate of heartbeat streaming (Hz) | 0 | 1000
 
@@ -366,9 +366,9 @@ void Params::set_param_defaults(void)
     init_param_int(PARAM_STREAM_SERVO_OUTPUT_RAW_RATE, "STRM_SERVO", 50); // Rate of raw output stream | 0 |  490
     init_param_int(PARAM_STREAM_RC_RAW_RATE, "STRM_RC", 50); // Rate of raw RC input stream | 0 | 50
 
-                                                             /********************************/
-                                                             /*** CONTROLLER CONFIGURATION ***/
-                                                             /********************************/
+    /********************************/
+    /*** CONTROLLER CONFIGURATION ***/
+    /********************************/
     init_param_int(PARAM_MAX_COMMAND, "PARAM_MAX_CMD", 1000); // saturation point for PID controller output | 0 | 1000
 
     init_param_float(PARAM_PID_ROLL_RATE_P, "PID_ROLL_RATE_P", 0.070f); // Roll Rate Proportional Gain | 0.0 | 1000.0
@@ -409,16 +409,16 @@ void Params::set_param_defaults(void)
     init_param_float(PARAM_PID_TAU, "PID_TAU", 0.05f); // Dirty Derivative time constant - See controller documentation | 0.0 | 1.0
 
 
-                                                       /*************************/
-                                                       /*** PWM CONFIGURATION ***/
-                                                       /*************************/
+    /*************************/
+    /*** PWM CONFIGURATION ***/
+    /*************************/
     init_param_int(PARAM_MOTOR_PWM_SEND_RATE, "MOTOR_PWM_UPDATE", 490); // Refresh rate of motor commands to motors - See motor documentation | 0 | 1000
     init_param_int(PARAM_MOTOR_IDLE_PWM, "MOTOR_IDLE_PWM", 1100); // Idle PWM sent to motors at zero throttle (Set above 1100 to spin when armed) | 1000 | 2000
     init_param_int(PARAM_SPIN_MOTORS_WHEN_ARMED, "ARM_SPIN_MOTORS", true); // Enforce MOTOR_IDLE_PWM | 0 | 1
 
-                                                                           /*******************************/
-                                                                           /*** ESTIMATOR CONFIGURATION ***/
-                                                                           /*******************************/
+    /*******************************/
+    /*** ESTIMATOR CONFIGURATION ***/
+    /*******************************/
     init_param_int(PARAM_INIT_TIME, "FILTER_INIT_T", 3000); // Time in ms to initialize estimator | 0 | 100000
     init_param_float(PARAM_FILTER_KP, "FILTER_KP", 1.0f); // estimator proportional gain - See estimator documentation | 0 | 10.0
     init_param_float(PARAM_FILTER_KI, "FILTER_KI", 0.1f); // estimator integral gain - See estimator documentation | 0 | 1.0
@@ -438,19 +438,19 @@ void Params::set_param_defaults(void)
     init_param_float(PARAM_ACC_Y_TEMP_COMP, "ACC_Y_TEMP_COMP", 0.0f); // Linear y-axis temperature compensation constant | -2.0 | 2.0
     init_param_float(PARAM_ACC_Z_TEMP_COMP, "ACC_Z_TEMP_COMP", 0.0f); // Linear z-axis temperature compensation constant | -2.0 | 2.0
 
-                                                                      /************************/
-                                                                      /*** RC CONFIGURATION ***/
-                                                                      /************************/
+    /************************/
+    /*** RC CONFIGURATION ***/
+    /************************/
     init_param_int(PARAM_RC_TYPE, "RC_TYPE", 1); // Type of RC input 0 - Parallel PWM (PWM), 1 - Pulse-Position Modulation (PPM) | 0 | 1
     init_param_int(PARAM_RC_X_CHANNEL, "RC_X_CHN", 0); // RC input channel mapped to x-axis commands [0 - indexed] | 0 | 3 
     init_param_int(PARAM_RC_Y_CHANNEL, "RC_Y_CHN", 1); // RC input channel mapped to y-axis commands [0 - indexed] | 0 | 3
     init_param_int(PARAM_RC_Z_CHANNEL, "RC_Z_CHN", 3); // RC input channel mapped to z-axis commands [0 - indexed] | 0 | 3
     init_param_int(PARAM_RC_F_CHANNEL, "RC_F_CHN", 2); // RC input channel mapped to F-axis commands [0 - indexed] | 0 | 3
     init_param_int(PARAM_RC_ATTITUDE_OVERRIDE_CHANNEL, "RC_ATT_OVRD_CHN", 4); // RC switch mapped to attitude override [0 -indexed] | 4 | 7
-    init_param_int(PARAM_RC_THROTTLE_OVERRIDE_CHANNEL, "RC_THR_OVRD_CHN", 4); // RC switch hannel mapped to throttle override [0 -indexed] | 4 | 7
-    init_param_int(PARAM_RC_ATT_CONTROL_TYPE_CHANNEL, "RC_ATT_CTRL_CHN", 5); // RC switch channel mapped to attitude control type [0 -indexed] | 4 | 7
+    init_param_int(PARAM_RC_THROTTLE_OVERRIDE_CHANNEL, "RC_THR_OVRD_CHN", 5); // RC switch hannel mapped to throttle override [0 -indexed] | 4 | 7
+    init_param_int(PARAM_RC_ATT_CONTROL_TYPE_CHANNEL, "RC_ATT_CTRL_CHN", 6); // RC switch channel mapped to attitude control type [0 -indexed] | 4 | 7
     init_param_int(PARAM_RC_F_CONTROL_TYPE_CHANNEL, "RC_F_CTRL_CHN", 7); // RC switch channel mapped to throttle control type override [0 -indexed] | 4 | 7
-    init_param_int(PARAM_RC_NUM_CHANNELS, "RC_NUM_CHN", 6); // number of RC input channels | 1 | 8
+    init_param_int(PARAM_RC_NUM_CHANNELS, "RC_NUM_CHN", 9); // number of RC input channels | 1 | 8
 
     init_param_int(PARAM_RC_X_CENTER, "RC_X_CENTER", 1500); // RC calibration x-axis center (us) | 1000 | 2000
     init_param_int(PARAM_RC_Y_CENTER, "RC_Y_CENTER", 1500); // RC calibration y-axis center (us) | 1000 | 2000
@@ -475,9 +475,9 @@ void Params::set_param_defaults(void)
     init_param_float(PARAM_RC_MAX_PITCHRATE, "RC_MAX_PITCHRATE", 3.14159f); // Maximum pitch command sent by full stick deflection of RC sticks | 0.0 | 3.14159
     init_param_float(PARAM_RC_MAX_YAWRATE, "RC_MAX_YAWRATE", 0.786f); // Maximum pitch command sent by full stick deflection of RC sticks | 0.0 | 3.14159
 
-                                                                      /***************************/
-                                                                      /*** FRAME CONFIGURATION ***/
-                                                                      /***************************/
+    /***************************/
+    /*** FRAME CONFIGURATION ***/
+    /***************************/
     init_param_int(PARAM_MIXER, "MIXER", 1); // Which mixer to choose, 1 = QUADCOPTER_X - See Mixer documentation | 0 | 5
 
     init_param_int(PARAM_FIXED_WING, "FIXED_WING", false); // switches on passthrough commands for fixedwing operation | 0 | 1
@@ -485,11 +485,11 @@ void Params::set_param_defaults(void)
     init_param_int(PARAM_AILERON_REVERSE, "AIL_REV", 0); // reverses aileron servo output | 0 | 1
     init_param_int(PARAM_RUDDER_REVERSE, "RUDDER_REV", 0); // reverses rudder servo output | 0 | 1
 
-                                                           /********************/
-                                                           /*** ARMING SETUP ***/
-                                                           /********************/
+    /********************/
+    /*** ARMING SETUP ***/
+    /********************/
     init_param_int(PARAM_ARM_STICKS, "ARM_STICKS", true); // use RC sticks to arm vehicle (disables arm RC switch if enabled) | 0 | 1
-    init_param_int(PARAM_ARM_CHANNEL, "ARM_CHANNEL", 5); // RC switch mapped to arm/disarm [0 -indexed] | 4 | 7
+    init_param_int(PARAM_ARM_CHANNEL, "ARM_CHANNEL", 8); // RC switch mapped to arm/disarm [0 -indexed] | 4 | 7
     init_param_int(PARAM_ARM_THRESHOLD, "ARM_THRESHOLD", 150); // RC deviation from max/min in yaw and throttle for arming and disarming check (us) | 0 | 500
 }
 
@@ -540,6 +540,17 @@ void Params::param_change_callback(param_id_t id)
     case PARAM_STREAM_RC_RAW_RATE:
         comm_link->set_streaming_rate(PARAM_STREAM_RC_RAW_RATE, get_param_int(PARAM_STREAM_RC_RAW_RATE));
         break;
+
+    //information messages
+    case PARAM_RC_TYPE:
+        comm_link->log_message(CommonState::stringf("RC type = %i", get_param_int(PARAM_RC_TYPE)).c_str(), 0);
+    case PARAM_MIXER:
+        comm_link->log_message(CommonState::stringf("Mixer = %i", get_param_int(PARAM_MIXER)).c_str(), 0);
+    case PARAM_FIXED_WING:
+        comm_link->log_message(CommonState::stringf("Fixed wing = %i", get_param_int(PARAM_FIXED_WING)).c_str(), 0);
+    case PARAM_ARM_STICKS:
+        comm_link->log_message(CommonState::stringf("Can use RC to arm = %i", get_param_int(PARAM_ARM_STICKS)).c_str(), 0);
+
 
         //TODO: need better design so components can listen to their param changes
         //case PARAM_RC_TYPE:

@@ -168,6 +168,8 @@ bool Sensors::update_sensors()
 
 bool Sensors::start_imu_calibration(void)
 {
+    comm_link->log_message("Starting IMU calibration...", 0);
+
     start_gyro_calibration();
 
     calibrating_acc_flag = true;
@@ -179,6 +181,8 @@ bool Sensors::start_imu_calibration(void)
 
 bool Sensors::start_gyro_calibration(void)
 {
+    comm_link->log_message("Starting gyro calibration...", 0);
+
     calibrating_gyro_flag = true;
     params->set_param_float(Params::PARAM_GYRO_X_BIAS, 0.0);
     params->set_param_float(Params::PARAM_GYRO_Y_BIAS, 0.0);
@@ -233,9 +237,11 @@ bool Sensors::update_imu(void)
         // if we have lost 1000 IMU messages something is wrong
         if (board->millis() > last_imu_update_ms + 1000)
         {
+            comm_link->log_message("Lost too many IMU messages! Reinitializing IMU...", 1);
+
             // change board revision and reset IMU
             last_imu_update_ms = board->millis();
-            params->set_param_int(Params::PARAM_BOARD_REVISION, (params->get_param_int(Params::PARAM_BOARD_REVISION) >= 4) ? 2 : 5);
+            params->set_param_int(Params::PARAM_BOARD_REVISION, (params->get_param_int(Params::PARAM_BOARD_REVISION) >= 4) ? 5 : 2);
             uint16_t acc1G;
             board->init_imu(acc1G, gyro_scale, params->get_param_int(Params::PARAM_BOARD_REVISION));
             accel_scale = 9.80665f / acc1G * params->get_param_float(Params::PARAM_ACCEL_SCALE);

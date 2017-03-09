@@ -9,7 +9,10 @@
 #include "physics/Environment.hpp"
 #include "physics/Kinematics.hpp"
 #include "AirSimRosFlightBoard.hpp"
+#include "AirSimRosFlightCommLink.hpp"
 #include "vehicles/MultiRotorParams.hpp"
+#include "firmware/firmware.hpp"
+
 
 namespace msr { namespace airlib {
 
@@ -31,16 +34,21 @@ public:
 
     virtual void update(real_T dt) override
     {
-        //board has reference to sensor collection and doesn't need upates for sensors
+        firmware_->loop();
     }
 
     virtual void start() override
     {
         board_.reset(new AirSimRosFlightBoard(&vehicle_params_->getParams().enabled_sensors, sensors_));
+        comm_link_.reset(new AirSimRosFlightCommLink());
+        firmware_.reset(new rosflight::Firmware(board_.get(), comm_link_.get()));
+        firmware_->setup();
     }
     virtual void stop() override
     {
+        firmware_.reset();
         board_.reset();
+        comm_link_.reset();
     }
 
     virtual size_t getVertexCount() override
@@ -50,12 +58,24 @@ public:
 
     virtual real_T getVertexControlSignal(unsigned int rotor_index) override
     {
-        return board_->getMotorControlSignal(rotor_index);
+        //convert counter clockwise index to ArduCopter's QuadX style index
+        unsigned int index_quadx;
+        switch (rotor_index)
+        {
+        case 0: index_quadx = 0; break;
+        case 1: index_quadx = 2; break;
+        case 2: index_quadx = 3; break;
+        case 3: index_quadx = 1; break;
+        default:
+            throw std::exception("Rotor index beyond 3 is not supported yet in ROSFlight firmware");
+        }
+
+        return board_->getMotorControlSignal(index_quadx);
     }
 
     virtual void getStatusMessages(std::vector<std::string>& messages) override
     {
-        //TODO: implement this
+        comm_link_->getStatusMessages(messages);
     }
 
     virtual bool isOffboardMode() override
@@ -105,7 +125,14 @@ public:
 
     void setRCData(const RCData& rcData)
     {
-        //TODO: implement this
+        board_->setInputChannel(0, angleToPwm(rcData.roll)); //X
+        board_->setInputChannel(1, angleToPwm(rcData.yaw)); //Y
+        board_->setInputChannel(2, angleToPwm(rcData.pitch)); //Z
+        board_->setInputChannel(3, angleToPwm(rcData.throttle)); //F
+        board_->setInputChannel(4, switchToPwm(rcData.switch1));
+        board_->setInputChannel(5, switchToPwm(rcData.switch2));
+        board_->setInputChannel(6, switchToPwm(rcData.switch3));
+        board_->setInputChannel(7, switchToPwm(rcData.switch4));
     }
     
     double timestampNow() override
@@ -200,11 +227,25 @@ protected:
     //*** End: DroneControllerBase implementation ***//
 
 private:
+    //convert pitch, roll, yaw from -1 to 1 to PWM
+    static uint16_t angleToPwm(float angle)
+    {
+        return static_cast<uint16_t>(angle * 500.0f + 1500.0f);
+    }
+    static uint16_t switchToPwm(uint switchVal, uint maxSwitchVal = 1)
+    {
+        return static_cast<uint16_t>(2000.0f * switchVal / maxSwitchVal);
+    }
+
+private:
     const MultiRotorParams* vehicle_params_;
     const Environment* environment_;
     const SensorCollection* sensors_;
     const Kinematics::State* kinematics_;
+
     unique_ptr<AirSimRosFlightBoard> board_;
+    unique_ptr<AirSimRosFlightCommLink> comm_link_;
+    unique_ptr<rosflight::Firmware> firmware_;
 };
 
 }} //namespace

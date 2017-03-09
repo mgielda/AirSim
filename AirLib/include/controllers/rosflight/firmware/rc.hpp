@@ -47,6 +47,8 @@ private:
     int32_t calib_min[4] = {10000, 10000, 10000, 10000};
     int32_t calib_sum[4] = {0, 0, 0, 0};
     int32_t calib_count[4] = {0, 0, 0, 0};
+
+    bool last_is_angle_control, last_is_altitude_control;
 };
 
 
@@ -87,6 +89,13 @@ void RC::init(CommonState* _common_state, Board* _board, Mux* _mux, Params* _par
     switches[2].direction = params->get_param_int(Params::PARAM_RC_SWITCH_7_DIRECTION);
     switches[3].channel = 7;
     switches[3].direction = params->get_param_int(Params::PARAM_RC_SWITCH_8_DIRECTION);
+
+    bool is_angle_control = rc_switch(params->get_param_int(Params::PARAM_RC_ATT_CONTROL_TYPE_CHANNEL));
+    bool is_altitude_control = rc_switch(params->get_param_int(Params::PARAM_RC_F_CONTROL_TYPE_CHANNEL));
+    comm_link->log_message(CommonState::stringf("Is angle/rate control = %i", is_angle_control).c_str(), 0);
+    last_is_angle_control = is_angle_control;
+    comm_link->log_message(CommonState::stringf("Is altitude/throttle control = %i", is_altitude_control).c_str(), 0);
+    last_is_altitude_control = is_altitude_control;
 }
 
 bool RC::rc_switch(int16_t channel)
@@ -188,9 +197,21 @@ bool RC::receive_rc(uint64_t now)
     }
     else
     {
-        rc_control.x.type = rc_control.y.type = rc_switch(params->get_param_int(Params::PARAM_RC_ATT_CONTROL_TYPE_CHANNEL)) ? Mux::ANGLE : Mux::RATE;
+        bool is_angle_control = rc_switch(params->get_param_int(Params::PARAM_RC_ATT_CONTROL_TYPE_CHANNEL));
+        bool is_altitude_control = rc_switch(params->get_param_int(Params::PARAM_RC_F_CONTROL_TYPE_CHANNEL));
+
+        if (last_is_angle_control != is_angle_control || last_is_altitude_control != is_altitude_control) {
+            comm_link->log_message(CommonState::stringf("Is angle or rate control = %i", is_angle_control).c_str(), 0);
+            last_is_angle_control = is_angle_control;
+        }
+        if (last_is_altitude_control != is_altitude_control) {
+            comm_link->log_message(CommonState::stringf("Is altitude or throttle control = %i", is_altitude_control).c_str(), 0);
+            last_is_altitude_control = is_altitude_control;
+        }
+
+        rc_control.x.type = rc_control.y.type = is_angle_control ? Mux::ANGLE : Mux::RATE;
         rc_control.z.type = Mux::RATE;
-        rc_control.F.type = rc_switch(params->get_param_int(Params::PARAM_RC_F_CONTROL_TYPE_CHANNEL)) ? Mux::ALTITUDE : Mux::THROTTLE;
+        rc_control.F.type = is_altitude_control ? Mux::ALTITUDE : Mux::THROTTLE;
     }
 
     // Interpret PWM Values from RC

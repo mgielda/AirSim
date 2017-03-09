@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-#ifndef air_ros_MavLinkDroneController_hpp
-#define air_ros_MavLinkDroneController_hpp
+#ifndef msr_airlib_MavLinkDroneController_hpp
+#define msr_airlib_MavLinkDroneController_hpp
 
 #include "common/CommonStructs.hpp"
 #include "common/Common.hpp"
