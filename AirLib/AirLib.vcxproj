@@ -50,6 +50,7 @@
     <ClInclude Include="include\common\UpdatableObject.hpp" />
     <ClInclude Include="include\common\VectorMath.hpp" />
     <ClInclude Include="include\common\common_utils\AsyncTasker.hpp" />
+    <ClInclude Include="include\controllers\rosflight\AirSimBoard.hpp" />
     <ClInclude Include="include\controllers\rosflight\firmware\board.hpp" />
     <ClInclude Include="include\controllers\rosflight\firmware\commlink.hpp" />
     <ClInclude Include="include\controllers\rosflight\firmware\commonstate.hpp" />

@@ -303,6 +303,9 @@
     <ClInclude Include="include\controllers\rosflight\RosFlightDroneController.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\controllers\rosflight\AirSimBoard.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\controllers\DroneControllerBase.cpp">
