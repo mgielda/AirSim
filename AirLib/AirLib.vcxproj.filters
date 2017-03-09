@@ -303,7 +303,7 @@
     <ClInclude Include="include\controllers\rosflight\RosFlightDroneController.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\controllers\rosflight\AirSimBoard.hpp">
+    <ClInclude Include="include\controllers\rosflight\AirSimRosFlightBoard.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

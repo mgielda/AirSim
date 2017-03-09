@@ -92,7 +92,6 @@ public:
     virtual bool isSimulationMode() override;
     virtual void setOffboardMode(bool is_set) override;
     virtual void setSimulationMode(bool is_set) override;
-    virtual void setUserInputs(const vector<float>& inputs) override;
     //*** End: VehicleControllerBase implementation ***//
 
 
@@ -102,6 +101,7 @@ public:
     Vector3r getVelocity() override;
     Quaternionr getOrientation() override;
     RCData getRCData() override;
+    void setRCData(const RCData& rcData) override;
     double timestampNow() override;
 
     bool armDisarm(bool arm, CancelableBase& cancelable_action) override;
@@ -121,8 +121,6 @@ protected:
     void commandVelocity(float vx, float vy, float vz, const YawMode& yaw_mode) override;
     void commandVelocityZ(float vx, float vy, float z, const YawMode& yaw_mode) override;
     void commandPosition(float x, float y, float z, const YawMode& yaw_mode) override;
-    void commandVirtualRC(const RCData& rc_data) override;
-    void commandEnableVirtualRC(bool enable) override;
     const VehicleParams& getVehicleParams() override;
     //*** End: DroneControllerBase implementation ***//
 
