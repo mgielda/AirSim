@@ -8,11 +8,6 @@
 #include "controllers/MavLinkDroneController.hpp"
 #include "controllers/Settings.hpp"
 
-//sensors
-#include "sensors/barometer/BarometerSimple.hpp"
-#include "sensors/imu/ImuSimple.hpp"
-#include "sensors/gps/GpsSimple.hpp"
-#include "sensors/magnetometer/MagnetometerSimple.hpp"
 
 namespace msr { namespace airlib {
 
@@ -45,15 +40,15 @@ protected:
         //compute inertia matrix
         computeInertiaMatrix(params.inertia, params.body_box, params.rotor_poses, box_mass, motor_assembly_weight);
         //create sensors
-        createStandardSensors(sensors, params.enabled_sensors);
+        createStandardSensors(sensor_storage_, sensors, params.enabled_sensors);
         //create MavLink controller for PX4
-        createMavController(controller, sensors);
+        createController(controller, sensors);
 
         //leave everything else to defaults
     }
 
 private:
-    void createMavController(unique_ptr<DroneControllerBase>& controller, SensorCollection& sensors)
+    void createController(unique_ptr<DroneControllerBase>& controller, SensorCollection& sensors)
     {
         controller.reset(new MavLinkDroneController());
         auto mav_controller = static_cast<MavLinkDroneController*>(controller.get());
@@ -138,26 +133,6 @@ private:
         }
 
         return connection_info;
-    }
-
-    void createStandardSensors(SensorCollection& sensors, const EnabledSensors& enabled_sensors)
-    {
-        sensor_storage_.clear();
-        if (enabled_sensors.imu)
-            sensors.insert(createSensor<ImuSimple>(), SensorCollection::SensorType::Imu);
-        if (enabled_sensors.magnetometer)
-            sensors.insert(createSensor<MagnetometerSimple>(), SensorCollection::SensorType::Magnetometer);
-        if (enabled_sensors.gps)
-            sensors.insert(createSensor<GpsSimple>(), SensorCollection::SensorType::Gps);
-        if (enabled_sensors.barometer)
-            sensors.insert(createSensor<BarometerSimple>(), SensorCollection::SensorType::Barometer);
-    }
-
-    template<typename SensorClass>
-    SensorBase* createSensor()
-    {
-        sensor_storage_.emplace_back(unique_ptr<SensorClass>(new SensorClass()));
-        return sensor_storage_.back().get();
     }
 
 private:

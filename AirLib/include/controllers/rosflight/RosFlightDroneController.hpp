@@ -239,9 +239,9 @@ private:
 
 private:
     const MultiRotorParams* vehicle_params_;
+    const Kinematics::State* kinematics_;
     const Environment* environment_;
     const SensorCollection* sensors_;
-    const Kinematics::State* kinematics_;
 
     unique_ptr<AirSimRosFlightBoard> board_;
     unique_ptr<AirSimRosFlightCommLink> comm_link_;

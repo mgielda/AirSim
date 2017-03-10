@@ -113,14 +113,13 @@
     <ClInclude Include="include\controllers\MotorDirectControllerParams.hpp" />
     <ClInclude Include="include\controllers\RpyDirectController.hpp" />
     <ClInclude Include="include\controllers\RpyDirectControllerParams.hpp" />
+    <ClInclude Include="include\vehicles\configs\RosFlightQuadX.hpp" />
     <ClInclude Include="include\vehicles\MultiRotor.hpp" />
     <ClInclude Include="include\vehicles\MultiRotorParams.hpp" />
     <ClInclude Include="include\vehicles\Rotor.hpp" />
     <ClInclude Include="include\vehicles\RotorParams.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="include\controllers\rosflight\firmware\turbotrig\turbotrig.c" />
-    <ClCompile Include="include\controllers\rosflight\firmware\turbotrig\turbovec.c" />
     <ClCompile Include="src\controllers\DroneControllerBase.cpp" />
     <ClCompile Include="src\controllers\MavLinkDroneController.cpp" />
     <ClCompile Include="src\safety\ObstacleMap.cpp" />

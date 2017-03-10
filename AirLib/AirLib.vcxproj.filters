@@ -309,6 +309,9 @@
     <ClInclude Include="include\controllers\rosflight\AirSimRosFlightCommLink.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\vehicles\configs\RosFlightQuadX.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\controllers\DroneControllerBase.cpp">
@@ -333,12 +336,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\controllers\FileSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="include\controllers\rosflight\firmware\turbotrig\turbotrig.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="include\controllers\rosflight\firmware\turbotrig\turbovec.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
