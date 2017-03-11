@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
+#include <cstdint>
+#include <cstdbool>
 
 #include "mux.hpp"
 #include "param.hpp"
@@ -191,11 +191,15 @@ void Controller::run_pid(pid_t *pid, float dt)
         // calculate D term (use dirty derivative if we don't have access to a measurement of the derivative)
         // The dirty derivative is a sort of low-pass filtered version of the derivative.
         // (Be sure to de-reference pointers)
-        if (pid->current_xdot == NULL && dt > 0.0f)
+        if (pid->current_xdot == NULL)
         {
-            pid->differentiator = (2.0f*pid->tau - dt) / (2.0f*pid->tau + dt)*pid->differentiator + 2.0f / (2.0f*pid->tau + dt)*((*pid->current_x) - pid->prev_x);
-            pid->prev_x = *pid->current_x;
-            d_term = params->get_param_float(pid->kd_param_id)*pid->differentiator;
+            if (dt > 0.0f) {
+                pid->differentiator = (2.0f*pid->tau - dt) / (2.0f*pid->tau + dt)*pid->differentiator + 2.0f / (2.0f*pid->tau + dt)*((*pid->current_x) - pid->prev_x);
+                pid->prev_x = *pid->current_x;
+                d_term = params->get_param_float(pid->kd_param_id)*pid->differentiator;
+            }
+            else
+                d_term = 0;
         } else
         {
             d_term = params->get_param_float(pid->kd_param_id) * (*pid->current_xdot);
@@ -245,31 +249,31 @@ void Controller::run_controller()
     prev_time = now;
 
     // ROLL
-    if (combined_control.x.type == Mux::RATE)
+    if (combined_control.x.type == Mux::control_type_t::RATE)
         run_pid(&pid_roll_rate, dt);
-    else if (combined_control.x.type == Mux::ANGLE)
+    else if (combined_control.x.type == Mux::control_type_t::ANGLE)
         run_pid(&pid_roll, dt);
-    else // PASSTHROUGH
+    else // MOTOR_DIRECT
         mixer_command.x = combined_control.x.value;
 
     // PITCH
-    if (combined_control.y.type == Mux::RATE)
+    if (combined_control.y.type == Mux::control_type_t::RATE)
         run_pid(&pid_pitch_rate, dt);
-    else if (combined_control.y.type == Mux::ANGLE)
+    else if (combined_control.y.type == Mux::control_type_t::ANGLE)
         run_pid(&pid_pitch, dt);
-    else // PASSTHROUGH
+    else // MOTOR_DIRECT
         mixer_command.y = combined_control.y.value;
 
     // YAW
-    if (combined_control.z.type == Mux::RATE)
+    if (combined_control.z.type == Mux::control_type_t::RATE)
         run_pid(&pid_yaw_rate, dt);
-    else// PASSTHROUGH
+    else// MOTOR_DIRECT
         mixer_command.z = combined_control.z.value;
 
     // THROTTLE
     //  if(combined_control.F.type == ALTITUDE)
     //    run_pid(&pid_altitude);
-    //  else // PASSTHROUGH
+    //  else // MOTOR_DIRECT
     mixer_command.F = combined_control.F.value;
 
     comm_link->notify_controller_updated();

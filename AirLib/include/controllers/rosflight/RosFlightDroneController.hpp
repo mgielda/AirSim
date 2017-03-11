@@ -19,10 +19,21 @@ namespace msr { namespace airlib {
 class RosFlightDroneController : public DroneControllerBase {
 
 public:
-    RosFlightDroneController(const MultiRotorParams* vehicle_params, const SensorCollection* sensors,
-        const Environment* environment, const Kinematics::State* kinematics)
-        : environment_(environment), kinematics_(kinematics), sensors_(sensors), vehicle_params_(vehicle_params)
+    RosFlightDroneController(const SensorCollection* sensors, const MultiRotorParams* vehicle_params)
+        : vehicle_params_(vehicle_params)
     {
+        sensors_ = sensors;
+
+        board_.reset(new AirSimRosFlightBoard(&vehicle_params_->getParams().enabled_sensors, sensors_));
+        comm_link_.reset(new AirSimRosFlightCommLink());
+        firmware_.reset(new rosflight::Firmware(board_.get(), comm_link_.get()));
+        firmware_->setup();
+    }
+
+    void initializePhysics(const Environment* environment, const Kinematics::State* kinematics)
+    {
+        environment_ = environment;
+        kinematics_ = kinematics;
     }
 
 public:
@@ -34,21 +45,15 @@ public:
 
     virtual void update(real_T dt) override
     {
+        board_->notifySensorUpdated(rosflight::Board::SensorType::Imu);
         firmware_->loop();
     }
 
     virtual void start() override
     {
-        board_.reset(new AirSimRosFlightBoard(&vehicle_params_->getParams().enabled_sensors, sensors_));
-        comm_link_.reset(new AirSimRosFlightCommLink());
-        firmware_.reset(new rosflight::Firmware(board_.get(), comm_link_.get()));
-        firmware_->setup();
     }
     virtual void stop() override
     {
-        firmware_.reset();
-        board_.reset();
-        comm_link_.reset();
     }
 
     virtual size_t getVertexCount() override
@@ -70,7 +75,9 @@ public:
             throw std::exception("Rotor index beyond 3 is not supported yet in ROSFlight firmware");
         }
 
-        return board_->getMotorControlSignal(index_quadx);
+        auto control_signal = board_->getMotorControlSignal(index_quadx);
+
+        return control_signal;
     }
 
     virtual void getStatusMessages(std::vector<std::string>& messages) override
@@ -120,19 +127,20 @@ public:
 
     RCData getRCData() override
     {
-        //TODO: implement this
+        return RCData();
     }
 
     void setRCData(const RCData& rcData)
     {
         board_->setInputChannel(0, angleToPwm(rcData.roll)); //X
         board_->setInputChannel(1, angleToPwm(rcData.yaw)); //Y
-        board_->setInputChannel(2, angleToPwm(rcData.pitch)); //Z
-        board_->setInputChannel(3, angleToPwm(rcData.throttle)); //F
+        board_->setInputChannel(2, thrustToPwm(rcData.throttle)); //F
+        board_->setInputChannel(3, angleToPwm(rcData.pitch)); //Z
         board_->setInputChannel(4, switchToPwm(rcData.switch1));
         board_->setInputChannel(5, switchToPwm(rcData.switch2));
         board_->setInputChannel(6, switchToPwm(rcData.switch3));
         board_->setInputChannel(7, switchToPwm(rcData.switch4));
+        board_->setInputChannel(8, switchToPwm(rcData.switch5));
     }
     
     double timestampNow() override
@@ -142,37 +150,37 @@ public:
 
     bool armDisarm(bool arm, CancelableBase& cancelable_action) override
     {
-        //TODO: implement this
+        return true;
     }
 
     bool takeoff(float max_wait_seconds, CancelableBase& cancelable_action) override
     {
-        //TODO: implement this
+        return true;
     }
 
     bool land(CancelableBase& cancelable_action) override
     {
-        //TODO: implement this
+        return true;
     }
 
     bool goHome(CancelableBase& cancelable_action) override
     {
-        //TODO: implement this
+        return true;
     }
 
     bool hover(CancelableBase& cancelable_action) override
     {
-        //TODO: implement this
+        return true;
     }
 
     GeoPoint getHomePoint() override
     {
-        environment_->getInitialState().geo_point;
+        return environment_->getInitialState().geo_point;
     }
 
     GeoPoint getGpsLocation() override
     {
-        environment_->getState().geo_point;
+        return environment_->getState().geo_point;
     }
 
     virtual void reportTelemetry(float renderTime) override
@@ -221,8 +229,8 @@ protected:
     const VehicleParams& getVehicleParams() override
     {
         //used for safety algos. For now just use defaults
-        static const VehicleParams vehicle_params_;
-        return vehicle_params_;
+        static const VehicleParams safety_params;
+        return safety_params;
     }
     //*** End: DroneControllerBase implementation ***//
 
@@ -232,9 +240,13 @@ private:
     {
         return static_cast<uint16_t>(angle * 500.0f + 1500.0f);
     }
+    static uint16_t thrustToPwm(float thrust)
+    {
+        return static_cast<uint16_t>(std::abs(thrust) * 1000.0f + 1000.0f);
+    }
     static uint16_t switchToPwm(uint switchVal, uint maxSwitchVal = 1)
     {
-        return static_cast<uint16_t>(2000.0f * switchVal / maxSwitchVal);
+        return static_cast<uint16_t>(1000.0f * switchVal / maxSwitchVal + 1000.0f);
     }
 
 private:

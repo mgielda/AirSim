@@ -35,7 +35,7 @@ public:
         return (motors_pwm_[index] - 1000) / 1000.0f;
     }
 
-    void setInputChannel(uint channel, real_T val)
+    void setInputChannel(uint channel, uint16_t val)
     {
         input_channels_[channel] = val;
     }
@@ -88,13 +88,13 @@ public:
         for (uint i = 0; i < OutputMotorCount; ++i)
             motors_pwm_[i] = 1000;
         for (uint i = 0; i < InputChannelCount; ++i)
-            motors_pwm_[i] = 1000;
+            input_channels_[i] = 1000;
     }
 
     virtual uint16_t pwmRead(int16_t channel) override 
     {
         //convert range -1 to 1 input signal to 1000 to 2000 PWM
-        return static_cast<uint16_t>(input_channels_[channel] * 500.0f + 1500.0f);
+        return static_cast<uint16_t>(input_channels_[channel]);
     }
 
     virtual void pwmWriteMotor(uint8_t index, uint16_t value) override 
@@ -122,12 +122,12 @@ public:
 
     virtual bool read_params() override 
     {
-        //ignored for now
+        return false;
     }
 
     virtual bool write_params(bool blink_led) override 
     {
-        //ignored for now
+        return false;
     }
 
     virtual void init_imu(uint16_t& acc1G, float& gyroScale, int boardVersion) override 
@@ -150,9 +150,9 @@ public:
     {
         const auto& output = imu_->getOutput();
         //convert from SI units in NED to ADC output
-        gyro_adc[0] = angular_vel_to_adc(output.linear_acceleration.x());
-        gyro_adc[1] = -angular_vel_to_adc(output.linear_acceleration.y());
-        gyro_adc[2] = -angular_vel_to_adc(output.linear_acceleration.z());
+        gyro_adc[0] = angular_vel_to_adc(output.angular_velocity.x());
+        gyro_adc[1] = -angular_vel_to_adc(output.angular_velocity.y());
+        gyro_adc[2] = -angular_vel_to_adc(output.angular_velocity.z());
     }
 
     virtual void read_temperature(int16_t& temp) override
@@ -265,7 +265,7 @@ private: //types and consts
 private:
     //motor outputs
     uint16_t motors_pwm_[OutputMotorCount];
-    real_T input_channels_[InputChannelCount];
+    uint16_t input_channels_[InputChannelCount];
 
     std::function<void(void)> imu_updated_callback_;
 };

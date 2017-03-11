@@ -1,8 +1,8 @@
 #pragma once
 
 #include "turbotrig/turbovec.h"
-#include <stdint.h>
-#include <stdbool.h>
+#include <cstdint>
+#include <cstdbool>
 #include "estimator.hpp"
 #include "commonstate.hpp"
 #include "param.hpp"

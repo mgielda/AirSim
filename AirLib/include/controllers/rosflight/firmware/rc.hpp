@@ -65,10 +65,10 @@ void RC::init(CommonState* _common_state, Board* _board, Mux* _mux, Params* _par
     _calibrate_rc = false;
 
     Mux::control_t& rc_control = mux->rc_control();
-    rc_control.x.type = Mux::ANGLE;
-    rc_control.y.type = Mux::ANGLE;
-    rc_control.z.type = Mux::RATE;
-    rc_control.F.type = Mux::THROTTLE;
+    rc_control.x.type = Mux::control_type_t::ANGLE;
+    rc_control.y.type = Mux::control_type_t::ANGLE;
+    rc_control.z.type = Mux::control_type_t::RATE;
+    rc_control.F.type = Mux::control_type_t::THROTTLE;
 
     rc_control.x.value = 0;
     rc_control.y.value = 0;
@@ -119,17 +119,17 @@ void RC::convertPWMtoRad()
     Mux::control_t& rc_control = mux->rc_control();
 
     // Get Roll control command out of RC
-    if (rc_control.x.type == Mux::ANGLE)
+    if (rc_control.x.type == Mux::control_type_t::ANGLE)
     {
         rc_control.x.value = (float)((board->pwmRead(params->get_param_int(Params::PARAM_RC_X_CHANNEL)) - 1500)
             *2.0f*params->get_param_float(Params::PARAM_RC_MAX_ROLL))/(float)params->get_param_int(Params::PARAM_RC_X_RANGE);
     }
-    else if (rc_control.x.type == Mux::RATE)
+    else if (rc_control.x.type == Mux::control_type_t::RATE)
     {
         rc_control.x.value = (float)((board->pwmRead(params->get_param_int(Params::PARAM_RC_X_CHANNEL)) - 1500)
             *2.0f*params->get_param_float(Params::PARAM_RC_MAX_ROLLRATE))/(float)params->get_param_int(Params::PARAM_RC_X_RANGE);
     }
-    else if (rc_control.x.type == Mux::PASSTHROUGH)
+    else if (rc_control.x.type == Mux::control_type_t::MOTOR_DIRECT)
     {
         rc_control.x.value = static_cast<float>(
             board->pwmRead(params->get_param_int(Params::PARAM_RC_X_CHANNEL)) - params->get_param_int(Params::PARAM_RC_X_CENTER)
@@ -137,17 +137,17 @@ void RC::convertPWMtoRad()
     }
 
     // Get Pitch control command out of RC
-    if (rc_control.y.type == Mux::ANGLE)
+    if (rc_control.y.type == Mux::control_type_t::ANGLE)
     {
         rc_control.y.value = ((board->pwmRead(params->get_param_int(Params::PARAM_RC_Y_CHANNEL)) - 1500)
             *2.0f*params->get_param_float(Params::PARAM_RC_MAX_PITCH))/(float)params->get_param_int(Params::PARAM_RC_Y_RANGE);
     }
-    else if (rc_control.y.type == Mux::RATE)
+    else if (rc_control.y.type == Mux::control_type_t::RATE)
     {
         rc_control.y.value = (float)((board->pwmRead(params->get_param_int(Params::PARAM_RC_Y_CHANNEL)) - 1500)
             *2.0f*params->get_param_float(Params::PARAM_RC_MAX_PITCHRATE))/(float)params->get_param_int(Params::PARAM_RC_Y_RANGE);
     }
-    else if (rc_control.y.type == Mux::PASSTHROUGH)
+    else if (rc_control.y.type == Mux::control_type_t::MOTOR_DIRECT)
     {
         rc_control.y.value = static_cast<float>(
             board->pwmRead(params->get_param_int(Params::PARAM_RC_Y_CHANNEL)) - 1500
@@ -155,17 +155,17 @@ void RC::convertPWMtoRad()
     }
 
     // Get the Yaw control command type out of RC
-    if (rc_control.z.type == Mux::RATE)
+    if (rc_control.z.type == Mux::control_type_t::RATE)
     {
         rc_control.z.value = ((board->pwmRead(params->get_param_int(Params::PARAM_RC_Z_CHANNEL)) - 1500)
             *2.0f*params->get_param_float(Params::PARAM_RC_MAX_YAWRATE))/(float)params->get_param_int(Params::PARAM_RC_Z_RANGE);
     }
-    else if (rc_control.z.type == Mux::PASSTHROUGH)
+    else if (rc_control.z.type == Mux::control_type_t::MOTOR_DIRECT)
     {
         rc_control.z.value = static_cast<float>(board->pwmRead(params->get_param_int(Params::PARAM_RC_Z_CHANNEL)) - 1500);
     }
 
-    // Finally, the Mux::THROTTLE command
+    // Finally, the Mux::control_type_t::THROTTLE command
     rc_control.F.value = (float)((board->pwmRead(params->get_param_int(Params::PARAM_RC_F_CHANNEL)) - params->get_param_int(Params::PARAM_RC_F_BOTTOM)))
         / (float)params->get_param_int(Params::PARAM_RC_F_RANGE);
 }
@@ -192,8 +192,8 @@ bool RC::receive_rc(uint64_t now)
     if (params->get_param_int(Params::PARAM_FIXED_WING))
     {
         // for using fixedwings
-        rc_control.x.type = rc_control.y.type = rc_control.z.type = Mux::PASSTHROUGH;
-        rc_control.F.type = Mux::THROTTLE;
+        rc_control.x.type = rc_control.y.type = rc_control.z.type = Mux::control_type_t::MOTOR_DIRECT;
+        rc_control.F.type = Mux::control_type_t::THROTTLE;
     }
     else
     {
@@ -209,9 +209,9 @@ bool RC::receive_rc(uint64_t now)
             last_is_altitude_control = is_altitude_control;
         }
 
-        rc_control.x.type = rc_control.y.type = is_angle_control ? Mux::ANGLE : Mux::RATE;
-        rc_control.z.type = Mux::RATE;
-        rc_control.F.type = is_altitude_control ? Mux::ALTITUDE : Mux::THROTTLE;
+        rc_control.x.type = rc_control.y.type = is_angle_control ? Mux::control_type_t::ANGLE : Mux::control_type_t::RATE;
+        rc_control.z.type = Mux::control_type_t::RATE;
+        rc_control.F.type = is_altitude_control ? Mux::control_type_t::ALTITUDE : Mux::control_type_t::THROTTLE;
     }
 
     // Interpret PWM Values from RC
@@ -244,7 +244,7 @@ bool RC::receive_rc(uint64_t now)
     }
 
 
-    // Set flags for Mux::THROTTLE channel
+    // Set flags for Mux::control_type_t::THROTTLE channel
     if (rc_switch(params->get_param_int(Params::PARAM_RC_THROTTLE_OVERRIDE_CHANNEL)))
     {
         // RC Pilot is in full control
@@ -252,7 +252,7 @@ bool RC::receive_rc(uint64_t now)
     }
     else
     {
-        // Onboard Control - min Mux::THROTTLE Checking will be done in mux and in the controller.
+        // Onboard Control - min Mux::control_type_t::THROTTLE Checking will be done in mux and in the controller.
         rc_control.F.active = false;
     }
 
@@ -296,7 +296,7 @@ void RC::calibrate_rc()
 
         // Calibrate Trimmed Centers
         comm_link->log_message("Calibrating RC, leave sticks at center", 1);
-        comm_link->log_message("and Mux::THROTTLE low for next 10 seconds", 1);
+        comm_link->log_message("and Mux::control_type_t::THROTTLE low for next 10 seconds", 1);
         board->delay_millis(5000);
         now = board->micros();
 

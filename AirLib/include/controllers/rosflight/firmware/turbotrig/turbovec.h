@@ -1,8 +1,8 @@
 #pragma once
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <math.h>
+#include <cstdlib>
+#include <cstdint>
+#include <cmath>
 
 #ifdef __GNUC__
 _Pragma("GCC diagnostic push")

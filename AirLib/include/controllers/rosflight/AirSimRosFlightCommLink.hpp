@@ -18,7 +18,7 @@ class AirSimRosFlightCommLink : public rosflight::CommLink {
 public: // derived class specific methods
     void getStatusMessages(std::vector<std::string>& messages)
     {
-        if (messages.size() > 0) {
+        if (messages_.size() > 0) {
             messages.insert(messages.end(), messages_.begin(), messages_.end());
             messages_.clear();
         }

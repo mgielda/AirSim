@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdbool.h>
-#include <stdint.h>
+#include <cstdbool>
+#include <cstdint>
 #include "commonstate.hpp"
 #include "param.hpp"
 #include "board.hpp"
@@ -11,29 +11,29 @@ namespace rosflight {
 
 class Mux {
 public:
-    typedef enum
+    enum class control_type_t
     {
         RATE, // Channel is is in rate mode (mrad/s)
         ANGLE, // Channel command is in angle mode (mrad)
         THROTTLE, // Channel is direcly controlling throttle max/1000
         ALTITUDE, // Channel is commanding a specified altitude in cm
-        PASSTHROUGH, // Channel directly passes PWM input to the mixer
-    } control_type_t;
+        MOTOR_DIRECT // Channel directly passes PWM input to the mixer
+    };
 
-    typedef struct
+    struct control_channel_t
     {
         bool active; // Whether or not the channel is active
         control_type_t type;  // What type the channel is
         float value; // The value of the channel
-    } control_channel_t;
+    };
 
-    typedef struct
+    struct control_t
     {
         control_channel_t x;
         control_channel_t y;
         control_channel_t z;
         control_channel_t F;
-    } control_t;
+    } ;
 public:
     void init(CommonState* _common_state, Board* _board, Params* _params);
     bool mux_inputs();
@@ -56,10 +56,10 @@ private:
     bool _new_command;
 
     control_t _failsafe_control = {
-        {true, ANGLE, 0.0},
-        {true, ANGLE, 0.0},
-        {true, RATE, 0.0},
-        {true, THROTTLE, 0.0}};
+        {true, Mux::control_type_t::ANGLE, 0.0},
+        {true, Mux::control_type_t::ANGLE, 0.0},
+        {true, Mux::control_type_t::RATE, 0.0},
+        {true, Mux::control_type_t::THROTTLE, 0.0}};
 };
 
 
@@ -137,11 +137,11 @@ bool Mux::mux_inputs()
         {
             if (_offboard_control.F.active)
             {
-                if (_rc_control.F.type == THROTTLE && _offboard_control.F.type == THROTTLE)
+                if (_rc_control.F.type == Mux::control_type_t::THROTTLE && _offboard_control.F.type == Mux::control_type_t::THROTTLE)
                 {
                     _combined_control.F.value = (_rc_control.F.value > _offboard_control.F.value) ?
                         _offboard_control.F.value : _rc_control.F.value;
-                    _combined_control.F.type = THROTTLE;
+                    _combined_control.F.type = Mux::control_type_t::THROTTLE;
                     _combined_control.F.active = true;
                 }
                 else

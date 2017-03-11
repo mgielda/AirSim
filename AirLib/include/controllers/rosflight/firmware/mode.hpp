@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #include "sensors.hpp"
 #include "rc.hpp"
 #include "commonstate.hpp"
@@ -17,13 +17,14 @@ public:
         INVALID_ARMED_STATE,
     } error_state_t;
 
-    void init(CommonState* _common_state, Sensors* _sensors, RC* _rc, Params* _params);
+    void init(Board* _board, CommLink* _comm_link, CommonState* _common_state, Sensors* _sensors, RC* _rc, Params* _params);
     bool check_mode(uint64_t now);
 
 private:
     bool arm(void);
     void disarm(void);
     bool check_failsafe(void);
+    void updateCommLinkArmStatus();
 
 private:
     error_state_t _error_state;
@@ -32,6 +33,7 @@ private:
     RC* rc;
     Params* params;
     Board* board;
+    CommLink* comm_link;
 
     bool started_gyro_calibration = false; //arm
     uint8_t blink_count = 0; //check_failsafe
@@ -41,8 +43,10 @@ private:
 
 
 /************************************************** Implementation ***************************************************************/
-void Mode::init(CommonState* _common_state, Sensors* _sensors, RC* _rc, Params* _params)
+void Mode::init(Board* _board, CommLink* _comm_link, CommonState* _common_state, Sensors* _sensors, RC* _rc, Params* _params)
 {
+    board = _board;
+    comm_link = _comm_link;
     params = _params;
     common_state = _common_state;
     sensors = _sensors;
@@ -53,25 +57,33 @@ void Mode::init(CommonState* _common_state, Sensors* _sensors, RC* _rc, Params* 
 
 bool Mode::arm(void)
 {
+    bool success;
     if (!started_gyro_calibration && common_state->is_disarmed())
     {
+        comm_link->log_message("Cannot arm because gyro calibration is not complete", 1);
+        
         sensors->start_gyro_calibration();
         started_gyro_calibration = true;
-        return false;
+        success = false;
     } else if (sensors->gyro_calibration_complete())
     {
         started_gyro_calibration = false;
         common_state->set_arm();
         board->set_led(0, true);
-        return true;
+        success = true;
     }
-    return false;
+
+    updateCommLinkArmStatus();
+
+    return success;
 }
 
 void Mode::disarm(void)
 {
     common_state->set_disarm();
     board->set_led(0, true);
+
+    updateCommLinkArmStatus();
 }
 
 /// TODO: Be able to tell if the RC has become disconnected during flight
@@ -83,6 +95,7 @@ bool Mode::check_failsafe(void)
         {
             if (common_state->is_armed() || common_state->is_disarmed())
             {
+                comm_link->log_message("Switching to failsafe mode because of invalid PWM RC inputs", 1);
                 common_state->setArmedState(CommonState::FAILSAFE_DISARMED);
             }
 
@@ -108,6 +121,16 @@ bool Mode::check_failsafe(void)
     return false;
 }
 
+void Mode::updateCommLinkArmStatus()
+{
+    if (common_state->is_armed())
+        comm_link->log_message("Vehicle is now armed", 0);
+    else if (common_state->is_disarmed())
+        comm_link->log_message("Vehicle is now armed", 0);
+    else
+        comm_link->log_message("Attempt to arm or disarm failed", 0);
+
+}
 
 bool Mode::check_mode(uint64_t now)
 {

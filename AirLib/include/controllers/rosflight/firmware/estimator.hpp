@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
+#include <cstdint>
+#include <cstdbool>
 #include "turbotrig/turbotrig.h"
 #include "turbotrig/turbovec.h"
 #include "param.hpp"
@@ -11,7 +11,7 @@ namespace rosflight {
 
 class Estimator {
 public:
-    typedef struct
+    struct state_t
     {
         quaternion_t q;
         vector_t euler;
@@ -28,7 +28,7 @@ public:
         float altitude;
         uint64_t now_us;
 
-    } state_t;
+    };
 
 public:
     void init(Params* _params, bool use_matrix_exponential, bool use_quadratic_integration, bool use_accelerometer);

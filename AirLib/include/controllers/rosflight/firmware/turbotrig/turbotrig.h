@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
 // float-based wrappers
 float atan2_approx(float y, float x);

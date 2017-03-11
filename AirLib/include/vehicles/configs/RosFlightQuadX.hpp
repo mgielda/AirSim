@@ -12,11 +12,11 @@ namespace msr { namespace airlib {
 
 class RosFlightQuadX : public MultiRotorParams {
 public:
-    RosFlightQuadX(const Environment* environment, const Kinematics::State* kinematics)
-        : environment_(environment), kinematics_(kinematics)
+    void initializePhysics(const Environment* environment, const Kinematics::State* kinematics)
     {
-
+        static_cast<RosFlightDroneController*>(getController())->initializePhysics(environment_, kinematics_);
     }
+
 protected:
     virtual void setup(Params& params, SensorCollection& sensors, unique_ptr<DroneControllerBase>& controller) override
     {
@@ -26,21 +26,34 @@ protected:
         std::vector<real_T> arm_lengths(params.rotor_count, 0.2275f);
 
         //set up mass
-        params.mass = 1.0f; //can be varied from 0.800 to 1.600
-        real_T motor_assembly_weight = 0.055f;  //weight for MT2212 motor for F450 frame
+        params.mass = 2.856f;
+        real_T motor_assembly_weight = 0.0800f;  //weight for MT2212 motor for F450 frame
         real_T box_mass = params.mass - params.rotor_count * motor_assembly_weight;
 
         //set up dimensions of core body box
-        params.body_box.x = 0.180f; params.body_box.y = 0.11f; params.body_box.z = 0.040f;
-        real_T rotor_z = 2.5f / 100;
+        params.body_box.x = 0.35f; params.body_box.y = 0.20f; params.body_box.z = 0.22f;
 
-        //computer rotor poses
-        initializeRotorPoses(params.rotor_poses, params.rotor_count, arm_lengths.data(), rotor_z);
-        //compute inertia matrix
-        computeInertiaMatrix(params.inertia, params.body_box, params.rotor_poses, box_mass, motor_assembly_weight);
-        //create sensors
+        //TODO: support ground effects https://github.com/byu-magicc/fcu_sim/blob/RC1.0/fcu_sim/agents/mikey/mikey.yaml
+
+        //setup rotor params
+        //TODO: support arbitrary force vector generation: https://github.com/byu-magicc/fcu_sim/blob/RC1.0/fcu_sim/agents/mikey/mikey.yaml
+        params.rotor_params.max_thrust = 9.00225f;
+        params.rotor_params.max_torque = 0.12531f;
+        params.rotor_params.control_signal_filter_tc = 0.2164f;
+
+        //setup rotor poses
+        params.rotor_poses.clear();
+        params.rotor_poses.emplace_back(Vector3r(0.1926f,  0.230f, -0.0762f), Vector3r(-0.02674078f,  0.0223925f,  -0.99939157f), RotorTurningDirection::RotorTurningDirectionCW);
+        params.rotor_poses.emplace_back(Vector3r(-0.1907f, -0.205, -0.0762f), Vector3r(0.02553726f, -0.02375588f, -0.99939157f), RotorTurningDirection::RotorTurningDirectionCW);
+        params.rotor_poses.emplace_back(Vector3r(0.1926f, -0.230f, -0.0762f), Vector3r(-0.02674078f, -0.0223925f,  -0.99939157f), RotorTurningDirection::RotorTurningDirectionCW);
+        params.rotor_poses.emplace_back(Vector3r(-0.1907f, 0.205f, -0.0762f), Vector3r(0.02553726f, 0.02375588f, -0.99939157f), RotorTurningDirection::RotorTurningDirectionCW);
+
+        params.inertia = Matrix3x3r::Zero();
+        params.inertia(0, 0) = 0.07f;
+        params.inertia(1, 1) = 0.08f;
+        params.inertia(2, 2) = 0.12f;
+
         createStandardSensors(sensor_storage_, sensors, params.enabled_sensors);
-        //create MavLink controller for PX4
         createController(controller, sensors);
 
         //leave everything else to defaults
@@ -49,7 +62,7 @@ protected:
 private:
     void createController(unique_ptr<DroneControllerBase>& controller, SensorCollection& sensors)
     {
-        controller.reset(new RosFlightDroneController(this, sensors, environment_, kinematics_));
+        controller.reset(new RosFlightDroneController(&sensors, this));
     }
 
 private:

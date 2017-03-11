@@ -59,7 +59,7 @@ public: //types
         // for nice streamlined frame design and allow higher top speed which is more fun.
         //angular coefficient is usually 10X smaller than linear, however we should replace this with exact number
         //http://physics.stackexchange.com/q/304742/14061
-        real_T angular_drag_coefficient = 0.13f; 
+        real_T angular_drag_coefficient = linear_drag_coefficient; 
         real_T restitution = 0.15f;
         real_T friction = 0.7f;
         EnabledSensors enabled_sensors;

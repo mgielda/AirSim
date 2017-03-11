@@ -1,5 +1,10 @@
 #pragma once
 
+#if defined(_MSC_VER)
+__pragma(warning(push))	
+__pragma(warning( disable : 4268))					  
+#endif
+
 #include "estimator.hpp"
 #include "mode.hpp"
 #include "param.hpp"
@@ -90,8 +95,9 @@ void Firmware::setup()
 
     rc.init(&common_state, board, &mux, &params, comm_link);
 
-    mode.init(&common_state, &sensors, &rc, &params);
+    mode.init(board, comm_link, &common_state, &sensors, &rc, &params);
 
+    comm_link->log_message("ROSFlight firmware initialized", 0);
 }
 
 void Firmware::loop()
@@ -127,3 +133,8 @@ void Firmware::loop()
 
 
 } //namespace
+
+
+#if defined(_MSC_VER)
+__pragma(warning(pop))					  
+#endif

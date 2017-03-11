@@ -1,11 +1,11 @@
 #pragma once
 
-#include <stdbool.h>
-#include <stdint.h>
+#include <cstdbool>
+#include <cstdint>
 #include "param.hpp"
 #include "board.hpp"
 #include "commlink.hpp"
-
+#include "commonstate.hpp"
 
 namespace rosflight {
 

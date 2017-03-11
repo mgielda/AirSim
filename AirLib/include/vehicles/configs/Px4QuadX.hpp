@@ -63,10 +63,10 @@ private:
 
         //read settings and override defaults
         Settings& settings = Settings::singleton();
-		Settings child;
+        Settings child;
         auto settings_filename = Settings::singleton().getFileName();
         if (!settings_filename.empty()) {
-			settings.getChild(connection_info.vehicle_name, child);
+            settings.getChild(connection_info.vehicle_name, child);
 
             // allow json overrides on a per-vehicle basis.
             connection_info.sim_sysid = static_cast<uint8_t>(child.getInt("SimSysID", connection_info.sim_sysid));
@@ -99,37 +99,37 @@ private:
 
         // update settings file with any new values that we now have.
         if (connection_info.vehicle_name.size() > 0) {
-			
+            
             bool changed = child.setInt("SimSysID", connection_info.sim_sysid);
             changed |= child.setInt("SimCompID", connection_info.sim_compid);
 
-			changed |= child.setInt("VehicleSysID", connection_info.vehicle_sysid);
-			changed |= child.setInt("VehicleCompID", connection_info.vehicle_compid);
+            changed |= child.setInt("VehicleSysID", connection_info.vehicle_sysid);
+            changed |= child.setInt("VehicleCompID", connection_info.vehicle_compid);
 
-			changed |= child.setInt("OffboardSysID", connection_info.offboard_sysid);
-			changed |= child.setInt("OffboardCompID", connection_info.offboard_compid);
+            changed |= child.setInt("OffboardSysID", connection_info.offboard_sysid);
+            changed |= child.setInt("OffboardCompID", connection_info.offboard_compid);
 
-			changed |= child.setString("LogViewerHostIp", connection_info.logviewer_ip_address);
-			changed |= child.setInt("LogViewerPort", connection_info.logviewer_ip_port);
+            changed |= child.setString("LogViewerHostIp", connection_info.logviewer_ip_address);
+            changed |= child.setInt("LogViewerPort", connection_info.logviewer_ip_port);
 
-			changed |= child.setString("QgcHostIp", connection_info.qgc_ip_address);
-			changed |= child.setInt("QgcPort", connection_info.qgc_ip_port);
+            changed |= child.setString("QgcHostIp", connection_info.qgc_ip_address);
+            changed |= child.setInt("QgcPort", connection_info.qgc_ip_port);
 
-			changed |= child.setString("SitlIp", connection_info.ip_address);
-			changed |= child.setInt("SitlPort", connection_info.ip_port);
+            changed |= child.setString("SitlIp", connection_info.ip_address);
+            changed |= child.setInt("SitlPort", connection_info.ip_port);
 
-			changed |= child.setString("LocalHostIp", connection_info.local_host_ip);
+            changed |= child.setString("LocalHostIp", connection_info.local_host_ip);
 
-			changed |= child.setBool("UseSerial", connection_info.use_serial);
-			changed |= child.setString("UdpIp", connection_info.ip_address);
-			changed |= child.setInt("UdpPort", connection_info.ip_port);
-			changed |= changed |= child.setString("SerialPort", connection_info.serial_port);
-			changed |= child.setInt("SerialBaudRate", connection_info.baud_rate);
+            changed |= child.setBool("UseSerial", connection_info.use_serial);
+            changed |= child.setString("UdpIp", connection_info.ip_address);
+            changed |= child.setInt("UdpPort", connection_info.ip_port);
+            changed |= changed |= child.setString("SerialPort", connection_info.serial_port);
+            changed |= child.setInt("SerialBaudRate", connection_info.baud_rate);
 
-			if (changed) {
-				settings.setChild(connection_info.vehicle_name, child);
-				settings.saveJSonFile("settings.json");
-			}
+            if (changed) {
+                settings.setChild(connection_info.vehicle_name, child);
+                settings.saveJSonFile("settings.json");
+            }
         }
 
         return connection_info;

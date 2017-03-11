@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
+#include <cstdint>
+#include <cstdbool>
 #include "commonstate.hpp"
 #include "param.hpp"
 #include "board.hpp"
@@ -11,13 +11,13 @@ namespace rosflight {
 
 class Mixer {
 public:
-    typedef struct
+    struct command_t
     {
         float F;
         float x;
         float y;
         float z;
-    } command_t;
+    };
 
     typedef enum
     {
