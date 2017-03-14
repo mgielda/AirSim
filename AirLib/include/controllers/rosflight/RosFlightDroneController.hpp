@@ -8,11 +8,14 @@
 #include "sensors/SensorCollection.hpp"
 #include "physics/Environment.hpp"
 #include "physics/Kinematics.hpp"
+#include "vehicles/MultiRotorParams.hpp"
+#include "common/Common.hpp"
 #include "AirSimRosFlightBoard.hpp"
 #include "AirSimRosFlightCommLink.hpp"
-#include "vehicles/MultiRotorParams.hpp"
-#include "firmware/firmware.hpp"
 
+STRICT_MODE_OFF
+#include "firmware/firmware.hpp"
+STRICT_MODE_ON
 
 namespace msr { namespace airlib {
 
@@ -67,10 +70,10 @@ public:
         unsigned int index_quadx;
         switch (rotor_index)
         {
-        case 0: index_quadx = 0; break;
+        case 0: index_quadx = 1; break;
         case 1: index_quadx = 2; break;
         case 2: index_quadx = 3; break;
-        case 3: index_quadx = 1; break;
+        case 3: index_quadx = 0; break;
         default:
             throw std::exception("Rotor index beyond 3 is not supported yet in ROSFlight firmware");
         }
@@ -135,7 +138,7 @@ public:
         board_->setInputChannel(0, angleToPwm(rcData.roll)); //X
         board_->setInputChannel(1, angleToPwm(rcData.yaw)); //Y
         board_->setInputChannel(2, thrustToPwm(rcData.throttle)); //F
-        board_->setInputChannel(3, angleToPwm(rcData.pitch)); //Z
+        board_->setInputChannel(3, angleToPwm(-rcData.pitch)); //Z
         board_->setInputChannel(4, switchToPwm(rcData.switch1));
         board_->setInputChannel(5, switchToPwm(rcData.switch2));
         board_->setInputChannel(6, switchToPwm(rcData.switch3));
@@ -242,7 +245,7 @@ private:
     }
     static uint16_t thrustToPwm(float thrust)
     {
-        return static_cast<uint16_t>(std::abs(thrust) * 1000.0f + 1000.0f);
+        return static_cast<uint16_t>((thrust < 0 ? 0 : thrust) * 1000.0f + 1000.0f);
     }
     static uint16_t switchToPwm(uint switchVal, uint maxSwitchVal = 1)
     {

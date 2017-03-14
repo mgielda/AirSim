@@ -41,6 +41,7 @@ private: //methods
     void inputEventYaw(float val);
     void inputEventPitch(float val);
     void inputEventRoll(float val);
+    void inputEventArmDisArm();
 
 private: //variables
 		 //Unreal components

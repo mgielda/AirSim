@@ -37,16 +37,16 @@ protected:
 
         //setup rotor params
         //TODO: support arbitrary force vector generation: https://github.com/byu-magicc/fcu_sim/blob/RC1.0/fcu_sim/agents/mikey/mikey.yaml
-        params.rotor_params.max_thrust = 9.00225f;
+        params.rotor_params.max_thrust = 14;    // 9.00225f;
         params.rotor_params.max_torque = 0.12531f;
         params.rotor_params.control_signal_filter_tc = 0.2164f;
 
         //setup rotor poses
         params.rotor_poses.clear();
-        params.rotor_poses.emplace_back(Vector3r(0.1926f,  0.230f, -0.0762f), Vector3r(-0.02674078f,  0.0223925f,  -0.99939157f), RotorTurningDirection::RotorTurningDirectionCW);
-        params.rotor_poses.emplace_back(Vector3r(-0.1907f, -0.205, -0.0762f), Vector3r(0.02553726f, -0.02375588f, -0.99939157f), RotorTurningDirection::RotorTurningDirectionCW);
-        params.rotor_poses.emplace_back(Vector3r(0.1926f, -0.230f, -0.0762f), Vector3r(-0.02674078f, -0.0223925f,  -0.99939157f), RotorTurningDirection::RotorTurningDirectionCW);
-        params.rotor_poses.emplace_back(Vector3r(-0.1907f, 0.205f, -0.0762f), Vector3r(0.02553726f, 0.02375588f, -0.99939157f), RotorTurningDirection::RotorTurningDirectionCW);
+        params.rotor_poses.emplace_back(Vector3r(0.230f, 0.1926f,  -0.0762f), Vector3r(0.0223925f, -0.02674078f,  -0.99939157f), RotorTurningDirection::RotorTurningDirectionCCW);
+        params.rotor_poses.emplace_back(Vector3r(-0.205, -0.1907f, -0.0762f), Vector3r(-0.02375588f, 0.02553726f, -0.99939157f), RotorTurningDirection::RotorTurningDirectionCCW);
+        params.rotor_poses.emplace_back(Vector3r(0.205f, -0.1907f, -0.0762f), Vector3r(0.02375588f, 0.02553726f, -0.99939157f), RotorTurningDirection::RotorTurningDirectionCW);
+        params.rotor_poses.emplace_back(Vector3r(-0.230f, 0.1926f, -0.0762f), Vector3r(-0.0223925f,  -0.02674078f, -0.99939157f), RotorTurningDirection::RotorTurningDirectionCW);
 
         params.inertia = Matrix3x3r::Zero();
         params.inertia(0, 0) = 0.07f;

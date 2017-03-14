@@ -93,6 +93,11 @@ void AFlyingPawn::inputEventRoll(float val)
     rc_data.roll = val;
     UAirBlueprintLib::LogMessage(TEXT("Roll: "), FString::SanitizeFloat(val), LogDebugLevel::Informational);
 }
+void AFlyingPawn::inputEventArmDisArm()
+{
+    rc_data.switch5 = rc_data.switch5 <= 0 ? 1 : 0;
+    UAirBlueprintLib::LogMessage(TEXT("Arm/Disarm"), FString::SanitizeFloat(rc_data.switch5), LogDebugLevel::Informational);
+}
 
 void AFlyingPawn::setupInputBindings()
 {
@@ -102,4 +107,6 @@ void AFlyingPawn::setupInputBindings()
     UAirBlueprintLib::BindAxisToKey("InputEventYaw", EKeys::Gamepad_LeftX, this, &AFlyingPawn::inputEventYaw);
     UAirBlueprintLib::BindAxisToKey("InputEventPitch", EKeys::Gamepad_RightY, this, &AFlyingPawn::inputEventPitch);
     UAirBlueprintLib::BindAxisToKey("InputEventRoll", EKeys::Gamepad_RightX, this, &AFlyingPawn::inputEventRoll);
+    UAirBlueprintLib::BindActionToKey("InputEventArmDisArm", EKeys::Gamepad_LeftTrigger, this, &AFlyingPawn::inputEventArmDisArm);
+
 }
